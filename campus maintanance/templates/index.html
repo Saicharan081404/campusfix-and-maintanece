@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Maintenance Control System</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-obsidian: #081849;
+            --bg-card: #0d215d;
+            --border-lapis: #213885;
+            --text-silver: #CCCACC;
+            --text-cream: #ECDFD2;
+            --purple-deep: #5F3475;
+            --plum-velvet: #893172;
+            --accent-teal: #42e8d3;
+            --font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--bg-obsidian);
+            color: var(--text-silver);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background-color: rgba(8, 24, 73, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-lapis);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--plum-velvet), var(--purple-deep));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-teal);
+            font-weight: 800;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(137, 49, 114, 0.4);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            color: var(--text-cream);
+            font-weight: 700;
+            font-size: 1.1rem;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            color: var(--text-silver);
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-silver);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.88rem;
+            transition: all 0.2s ease;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-cream);
+            background-color: var(--border-lapis);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--accent-teal);
+            color: var(--accent-teal);
+            padding: 0.45rem 0.9rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-report {
+            background-color: var(--accent-teal);
+            color: var(--bg-obsidian);
+            padding: 0.55rem 1.1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-report:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* --- CONTAINER & ALERTS --- */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+            flex: 1;
+        }
+
+        .flash-messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-danger { background-color: rgba(224, 86, 86, 0.2); color: #fca5a5; border: 1px solid rgba(224, 86, 86, 0.4); }
+        .alert-success { background-color: rgba(72, 187, 120, 0.2); color: #86efac; border: 1px solid rgba(72, 187, 120, 0.4); }
+        .alert-info { background-color: rgba(33, 56, 133, 0.4); color: var(--text-cream); border: 1px solid var(--border-lapis); }
+
+        /* --- HERO SECTION --- */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .badge-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-lapis);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent-teal);
+            margin-bottom: 1.5rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-teal);
+            border-radius: 50%;
+        }
+
+        .hero-title {
+            color: var(--text-cream);
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .hero-title span {
+            color: var(--accent-teal);
+        }
+
+        .hero-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: var(--text-silver);
+            max-width: 500px;
+        }
+
+        .btn-console {
+            display: inline-block;
+            background-color: var(--accent-teal);
+            color: var(--bg-obsidian);
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 14px rgba(66, 232, 211, 0.3);
+        }
+
+        /* --- MAP CARD PREVIEW --- */
+        .map-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-lapis);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            min-height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(var(--border-lapis) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .pin {
+            position: absolute;
+            background-color: rgba(8, 24, 73, 0.9);
+            border: 1px solid var(--border-lapis);
+            padding: 0.6rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .pin strong { display: block; color: var(--text-cream); font-size: 0.85rem; }
+        .pin span { font-size: 0.75rem; color: #f97316; }
+
+        .pin-1 { top: 15%; left: 10%; }
+        .pin-2 { top: 20%; right: 10%; }
+        .pin-3 { bottom: 20%; left: 20%; }
+        .pin-4 { top: 45%; right: 5%; }
+
+        /* --- FORMS & CARDS --- */
+        .auth-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-lapis);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 550px;
+            margin: 1rem auto;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-card h2 { color: var(--text-cream); font-size: 1.6rem; margin-bottom: 0.5rem; }
+        .auth-card p { font-size: 0.85rem; margin-bottom: 1.5rem; opacity: 0.8; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            color: var(--text-silver);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background-color: var(--bg-obsidian);
+            border: 1px solid var(--border-lapis);
+            border-radius: 8px;
+            color: var(--text-cream);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-teal);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, var(--plum-velvet), var(--purple-deep));
+            color: var(--text-cream);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover { opacity: 0.95; }
+
+        /* --- TICKET TABLE --- */
+        .table-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-lapis);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            margin-top: 1rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+        th {
+            background-color: var(--bg-obsidian);
+            color: var(--text-cream);
+            padding: 1rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-lapis);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        td { padding: 1rem; border-bottom: 1px solid var(--border-lapis); color: var(--text-silver); }
+
+        .status-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .status-Pending { background-color: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.4); }
+        .status-In-Progress { background-color: rgba(95, 52, 117, 0.3); color: var(--text-cream); border: 1px solid var(--plum-velvet); }
+        .status-Resolved { background-color: rgba(72, 187, 120, 0.2); color: #48bb78; border: 1px solid rgba(72, 187, 120, 0.4); }
+
+        /* --- STATS & CHARTS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .stat-card { background-color: var(--bg-card); border: 1px solid var(--border-lapis); border-radius: 12px; padding: 1.5rem; }
+        .stat-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-silver); margin-bottom: 0.5rem; }
+        .stat-card .value { color: var(--text-cream); font-size: 1.8rem; font-weight: 800; }
+
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+        .chart-card { background-color: var(--bg-card); border: 1px solid var(--border-lapis); border-radius: 12px; padding: 1rem; text-align: center; }
+        .chart-card img { max-width: 100%; height: auto; border-radius: 8px; }
+
+        footer { border-top: 1px solid var(--border-lapis); padding: 1.5rem 2rem; text-align: center; font-size: 0.8rem; color: var(--text-silver); opacity: 0.7; }
+
+        @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="{{ url_for('dashboard') }}" class="brand">
+            <div class="brand-logo">CM</div>
+            <div class="brand-text">
+                <span class="brand-title">Campus Maintenance</span>
+                <span class="brand-subtitle">Control System</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if active_tab == 'hero' %}active{% endif %}">Home</a></li>
+            
+            {% if session.get('user') %}
+                <!-- ONLY SHOWN FOR LOGGED IN USERS/STUDENTS -->
+                <li><a href="{{ url_for('register') }}" class="nav-link {% if active_tab == 'register' %}active{% endif %}">Register Issue</a></li>
+                <li><a href="{{ url_for('tickets') }}" class="nav-link {% if active_tab == 'tickets' %}active{% endif %}">All Tickets</a></li>
+                
+                {% if session['user'].get('role') == 'admin' %}
+                    <li><a href="{{ url_for('admin_verify') }}" class="btn-outline">Admin Portal</a></li>
+                    <li><a href="{{ url_for('reports') }}" class="nav-link {% if active_tab == 'reports' %}active{% endif %}">Reports</a></li>
+                {% endif %}
+
+                <li><a href="{{ url_for('logout') }}" class="nav-link">Logout</a></li>
+                <li><a href="{{ url_for('register') }}" class="btn-report">+ Report an Issue</a></li>
+            {% else %}
+                <!-- SHOWN WHEN NOT LOGGED IN -->
+                <li><a href="{{ url_for('login') }}" class="nav-link {% if active_tab == 'login' %}active{% endif %}">Login</a></li>
+                <li><a href="{{ url_for('signup') }}" class="nav-link {% if active_tab == 'signup' %}active{% endif %}">Sign Up</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- CONTENT AREA -->
+    <div class="container">
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="fa-solid fa-circle-info"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- TAB: HERO / HOME -->
+        {% if active_tab == 'hero' %}
+            <div class="hero-grid">
+                <div>
+                    <div class="badge-live">
+                        <span class="dot"></span> Live Across Campus Buildings
+                    </div>
+                    <h1 class="hero-title">
+                        Every squeak, leak, and flicker — <span>logged, tracked, fixed.</span>
+                    </h1>
+                    <p class="hero-desc">
+                        Campus Maintenance turns scattered maintenance complaints into a single work-order board — from the moment a student reports a broken fan to the day a technician closes the ticket.
+                    </p>
+                    {% if session.get('user') %}
+                        <a href="{{ url_for('tickets') }}" class="btn-console">Open the Console</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn-console">Log In to Console</a>
+                    {% endif %}
+                </div>
+
+                <div class="map-card">
+                    <div class="pin pin-1">
+                        <strong>Block A • Rm 204</strong>
+                        <span>Fan not working</span>
+                    </div>
+                    <div class="pin pin-2">
+                        <strong>Library</strong>
+                        <span style="color: #ef4444;">Wi-Fi down</span>
+                    </div>
+                    <div class="pin pin-3">
+                        <strong>Block C • Rm 118</strong>
+                        <span style="color: #3b82f6;">Tap leakage</span>
+                    </div>
+                    <div class="pin pin-4">
+                        <strong>Computer Lab</strong>
+                        <span>Projector fault</span>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- TAB: SIGNUP FOR NEW USERS -->
+        {% if active_tab == 'signup' %}
+            <div class="auth-card">
+                <h2>Student Sign Up</h2>
+                <p>Enter your details to create an account and receive verification OTP.</p>
+                <form action="{{ url_for('signup') }}" method="POST">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Enrollment Number</label>
+                        <input type="text" name="enrollment_no" class="form-control" placeholder="e.g. CS202610482" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Personal / College Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="e.g. student@univ.edu" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Create Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Enter secure password" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Send Verification OTP</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- TAB: VERIFY OTP -->
+        {% if active_tab == 'verify_otp' %}
+            <div class="auth-card">
+                <h2>Verify OTP Code</h2>
+                <p>Enter the OTP verification code sent to <strong>{{ email }}</strong></p>
+                <form action="{{ url_for('verify_otp', email=email) }}" method="POST">
+                    <div class="form-group">
+                        <label>OTP Code</label>
+                        <input type="text" name="otp" class="form-control" placeholder="e.g. 584920" maxlength="6" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Complete Registration</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- TAB: LOGIN -->
+        {% if active_tab == 'login' %}
+            <div class="auth-card">
+                <h2>System Login</h2>
+                <p>Sign in using your college email or enrollment number.</p>
+                <form action="{{ url_for('login') }}" method="POST">
+                    <div class="form-group">
+                        <label>Email or Enrollment No.</label>
+                        <input type="text" name="identifier" class="form-control" placeholder="e.g. student@univ.edu or admin@campus.edu" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Log In</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- TAB: REGISTER COMPLAINT -->
+        {% if active_tab == 'register' %}
+            <div class="auth-card" style="max-width: 650px;">
+                <h2>Register Maintenance Issue</h2>
+                <p>Submit a facility maintenance ticket to campus support.</p>
+                <form action="{{ url_for('register') }}" method="POST">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Student Name</label>
+                            <input type="text" name="student_name" class="form-control" value="{{ session['user']['name'] if session.get('user') else '' }}" placeholder="e.g. John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" name="department" class="form-control" placeholder="e.g. Mechanical Engineering" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Building Block</label>
+                            <input type="text" name="building" class="form-control" placeholder="e.g. Tech Block B" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Room / Area No.</label>
+                            <input type="text" name="room_no" class="form-control" placeholder="e.g. Hall 105" required>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select name="category" class="form-control" required>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Plumbing">Plumbing</option>
+                                <option value="IT Support">IT Support</option>
+                                <option value="Internet">Internet/Wi-Fi</option>
+                                <option value="Cleaning">Cleaning</option>
+                                <option value="AC/Cooling">AC / Cooling</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select name="priority" class="form-control" required>
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                                <option value="Urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Describe Problem</label>
+                        <textarea name="problem" class="form-control" rows="3" placeholder="e.g. Overhead projector power supply failing intermittently..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Submit Maintenance Ticket</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- TAB: ALL TICKETS -->
+        {% if active_tab == 'tickets' %}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="color: var(--text-cream);">Campus Maintenance Tickets</h2>
+                <form action="{{ url_for('tickets') }}" method="GET" style="display: flex; gap: 0.5rem;">
+                    <input type="text" name="search" class="form-control" placeholder="e.g. CMP001 or Tech Block B" value="{{ search_query }}">
+                    <button type="submit" class="btn-submit" style="width: auto; padding: 0.5rem 1rem;">Search</button>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Student</th>
+                            <th>Building & Room</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tickets %}
+                            {% for ticket in tickets %}
+                                <tr>
+                                    <td><strong>{{ ticket.id }}</strong></td>
+                                    <td>{{ ticket.student_name }}<br><small style="opacity: 0.6;">{{ ticket.enrollment_no }}</small></td>
+                                    <td>{{ ticket.building }} ({{ ticket.room_no }})</td>
+                                    <td>{{ ticket.category }}</td>
+                                    <td>{{ ticket.priority }}</td>
+                                    <td><span class="status-badge status-{{ ticket.status | replace(' ', '-') }}">{{ ticket.status }}</span></td>
+                                    <td>{{ ticket.date }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2rem;">No maintenance tickets found. Submit a ticket to populate the table.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <!-- TAB: ADMIN PORTAL RESOLUTION PANEL -->
+        {% if active_tab == 'admin_verify' %}
+            <h2 style="color: var(--text-cream); margin-bottom: 1rem;">Admin Resolution Panel</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Details</th>
+                            <th>Problem Description</th>
+                            <th>Status & Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if complaints_list %}
+                            {% for item in complaints_list %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item[0] }}</strong><br>
+                                        <small>{{ item[10] }}</small>
+                                    </td>
+                                    <td>
+                                        {{ item[2] }} ({{ item[1] }})<br>
+                                        <small>{{ item[4] }} - Room {{ item[5] }}</small>
+                                    </td>
+                                    <td>{{ item[7] }}</td>
+                                    <form action="{{ url_for('admin_verify') }}" method="POST">
+                                        <input type="hidden" name="complaint_id" value="{{ item[0] }}">
+                                        <td>
+                                            <select name="status" class="form-control" style="margin-bottom: 0.4rem; padding: 0.4rem;">
+                                                <option value="Pending" {% if item[9] == 'Pending' %}selected{% endif %}>Pending</option>
+                                                <option value="In Progress" {% if item[9] == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                                <option value="Resolved" {% if item[9] == 'Resolved' %}selected{% endif %}>Resolved</option>
+                                            </select>
+                                            <input type="text" name="admin_remarks" class="form-control" style="padding: 0.4rem; font-size: 0.8rem;" placeholder="Admin remarks..." value="{{ item[11] }}">
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="btn-submit" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Update</button>
+                                        </td>
+                                    </form>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">No maintenance tickets registered yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <!-- TAB: REPORTS & ANALYTICS -->
+        {% if active_tab == 'reports' %}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--text-cream);">Campus Maintenance Analytics & Reports</h2>
+                <a href="{{ url_for('export_csv') }}" class="btn-report"><i class="fa-solid fa-download"></i> Export Report CSV</a>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Tickets</h3>
+                    <div class="value">{{ total }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <div class="value" style="color: #f97316;">{{ pending }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>In Progress</h3>
+                    <div class="value" style="color: var(--text-cream);">{{ in_progress }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Resolved</h3>
+                    <div class="value" style="color: #48bb78;">{{ resolved }}</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <img src="{{ url_for('static', filename='charts/status_distribution.png') }}" alt="Status Distribution">
+                </div>
+                <div class="chart-card">
+                    <img src="{{ url_for('static', filename='charts/complaints_building.png') }}" alt="Complaints by Building">
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        &copy; 2026 Campus Maintenance Control System. All rights reserved.
+    </footer>
+
+</body>
+</html>
