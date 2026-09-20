@@ -331,3 +331,8 @@ def export_csv():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+    # At the bottom of app.py
+app = app  # Required for Vercel WSGI exposure
+
+if __name__ == '__main__':
+    app.run(debug=True)
