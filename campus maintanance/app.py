@@ -5,7 +5,8 @@ import os
 import csv
 from datetime import datetime
 
-# Matplotlib setup for headless rendering
+# --- MATPLOTLIB HEADLESS SETUP ---
+# Must be set BEFORE importing pyplot to prevent serverless GUI errors
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -13,7 +14,14 @@ import matplotlib.pyplot as plt
 app = Flask(__name__)
 app.secret_key = 'campus_maintenance_secret_key_2026'
 
-DB_FILE = 'campus_maintenance.db'
+# --- DYNAMIC VERCEL FILE PATH CONFIGURATION ---
+# Vercel serverless containers are read-only except for the /tmp directory
+if os.environ.get('VERCEL'):
+    DB_FILE = '/tmp/campus_maintenance.db'
+    CHARTS_DIR = '/tmp/static/charts'
+else:
+    DB_FILE = 'campus_maintenance.db'
+    CHARTS_DIR = 'static/charts'
 
 # --- DATABASE SETUP ---
 def init_db():
@@ -63,11 +71,12 @@ def init_db():
     conn.commit()
     conn.close()
 
+# Initialize Database on app load
 init_db()
 
 # --- CHART GENERATION FOR REPORTS ---
 def generate_charts():
-    os.makedirs('static/charts', exist_ok=True)
+    os.makedirs(CHARTS_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
@@ -83,7 +92,7 @@ def generate_charts():
         plt.text(0.5, 0.5, 'No Ticket Data Available', horizontalalignment='center', verticalalignment='center')
     plt.title('Tickets by Status')
     plt.tight_layout()
-    plt.savefig('static/charts/status_distribution.png')
+    plt.savefig(os.path.join(CHARTS_DIR, 'status_distribution.png'))
     plt.close()
 
     # 2. Complaints by Building
@@ -99,7 +108,7 @@ def generate_charts():
     plt.title('Complaints by Building')
     plt.xticks(rotation=15)
     plt.tight_layout()
-    plt.savefig('static/charts/complaints_building.png')
+    plt.savefig(os.path.join(CHARTS_DIR, 'complaints_building.png'))
     plt.close()
 
     conn.close()
@@ -321,7 +330,7 @@ def export_csv():
     rows = cursor.fetchall()
     conn.close()
 
-    filename = "maintenance_report.csv"
+    filename = "/tmp/maintenance_report.csv" if os.environ.get('VERCEL') else "maintenance_report.csv"
     with open(filename, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['Ticket ID', 'Enrollment', 'Student Name', 'Department', 'Building', 'Room', 'Category', 'Problem', 'Priority', 'Status', 'Date', 'Admin Remarks'])
@@ -329,10 +338,8 @@ def export_csv():
 
     return send_file(filename, as_attachment=True)
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-    # At the bottom of app.py
-app = app  # Required for Vercel WSGI exposure
+# WSGI exposure for Vercel
+app = app
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
